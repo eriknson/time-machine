@@ -4,16 +4,15 @@ A macOS Time Machine-inspired interface for browsing past versions of documents,
 
 ## Features
 
-- **Full-screen document windows** showing app evolution over time with markdown-style content
-- **Realistic macOS chrome** - title bar with traffic lights, toolbar, status bar
-- **3D tunnel effect** - windows stack vertically backward creating an infinite perspective
-- **Timeline sidebar** on the right showing all version timestamps
-- **Smooth GPU-accelerated animations** with optimized transforms
-- **Keyboard navigation** (←/→ arrows, Esc to close)
-- **Mouse interaction** (click windows or timeline to navigate)
-- **Cosmic background** with space-themed gradient and stars
-- **Content evolution** - watch features get added/removed as you travel through time
-- **Fully accessible** with ARIA labels and focus management
+- **Immersive 3D card stack** - Full-screen experience with perspective depth
+- **Dual view modes** - Switch between release notes (scope) and browser mockups
+- **Timeline sidebar** - Quick navigation through version history
+- **Smooth animations** - GPU-accelerated transforms with Framer Motion
+- **Keyboard navigation** - Arrow keys (↑/↓) to travel through time, Esc to close
+- **Mouse interaction** - Click cards or timeline to jump to any version
+- **Cosmic background** - Space-themed gradient with animated starfield
+- **Content evolution** - Watch features get added as you travel through versions
+- **Fully accessible** - ARIA labels, focus management, keyboard support
 
 ## Stack
 
@@ -37,7 +36,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000/version-demo](http://localhost:3000/version-demo) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Build for Production
 
@@ -58,107 +57,92 @@ npm run test:watch # Watch mode
 ```
 src/
 ├── app/
-│   ├── page.tsx                  # Home page with link to demo
-│   └── version-demo/
-│       └── page.tsx              # Demo route entry point
+│   ├── page.tsx                  # Landing page with version demo
+│   ├── layout.tsx                # Root layout
+│   └── globals.css               # Global styles
 ├── components/
-│   ├── version-window.tsx        # Full Finder-style window component
-│   ├── timeline-sidebar.tsx      # Right sidebar with version timeline
+│   ├── version-mode.tsx          # Main 3D overlay component
+│   ├── version-window.tsx        # Release notes card
+│   ├── browser-window.tsx        # Browser mockup card
+│   ├── timeline-sidebar.tsx      # Version timeline navigation
 │   ├── version-controls.tsx      # Restore/Cancel buttons
-│   └── version-mode.tsx          # Main 3D overlay component
+│   └── view-type-selector.tsx    # Scope/Browser toggle
 ├── hooks/
 │   └── useVersionMode.ts         # State management and keyboard handling
 └── lib/
-    └── versions.mock.ts          # Mock version data with folders
+    └── versions.mock.ts          # Mock version data
 ```
 
 ## How It Works
 
 ### Visual Model
 
-The interface mimics macOS Time Machine with:
+The interface creates a dramatic 3D tunnel effect:
 
-- **Full viewport Finder windows** (90vw × 75vh) with realistic window chrome
-- **Vertical + backward stacking** creating a tunnel effect
-- **10 windows rendered** for the illusion of infinite depth
+- **Full viewport cards** (85vw × 70vh) with clean content
+- **Vertical + backward stacking** creating depth perspective
+- **15 windows rendered** for smooth infinite scrolling
 - **Timeline on the right** with clickable timestamps
-- **Cosmic background** with radial gradient and starfield
+- **Cosmic starfield background** for depth atmosphere
 
 ### 3D Transforms
 
-For each window at depth `i` (0 = front):
+For each card at depth `i` (0 = front):
 
-- **translateY**: `-180 * i` px (moves up)
-- **translateZ**: `-650 * i` px (moves back)
-- **rotateX**: `12deg` (tilts back)
-- **scale**: `1 - 0.1 * i` (shrinks)
-- **opacity**: `0.75 - 0.08 * i` (fades)
+- **translateY**: `280 * i` px (cards recede downward)
+- **translateZ**: `-800 * i` px (moves back in space)
+- **rotateX**: `-15deg` for back cards (front card flat)
+- **scale**: `1 - 0.03 * i` (subtle shrinking)
+- **opacity**: Fades progressively with depth
 
 ### Perspective Setup
 
 ```css
 perspective: 2200px
-perspective-origin: 50% 70%
+perspective-origin: 50% 35%
 ```
 
-Creates a dramatic vanishing point at the bottom center, making windows recede upward into the distance.
+Creates a dramatic vanishing point, making cards recede downward into the distance.
 
-### Animation
+### View Modes
 
-All transforms animated with GPU acceleration:
-- **Duration**: `500ms`
-- **Easing**: `cubic-bezier(0.25, 0.1, 0.25, 1.0)` (smoother curve)
-- **Optimizations**: `will-change: transform`, `transform-origin: center`, `backface-visibility: hidden`
-- **Z-index management**: Proper stacking order (1000 - depth)
+**Scope View (Release Notes)**
+- Clean document-style layout
+- Version title and description
+- Feature list with checkmarks
+- Timestamp information
 
-When navigating, the entire stack shifts smoothly together with no jumpiness.
-
-### Window Content
-
-Each window displays a markdown-style document showing:
-- **App title and version number** (e.g., "CollabSpace v2.4.0")
-- **Description** of what the app does at that point in time
-- **Feature list** with checkmarks showing available functionality
-- **Timestamp** of when this version existed
-
-As you navigate backward through time, you'll see features disappear, showing the app's evolution from a simple alpha prototype to a full-featured collaboration platform.
+**Browser View (Mockups)**
+- Simulated web application interface
+- Shows UI evolution over time
+- Interactive music app example (MusicFlow)
+- Progressive feature additions
 
 ### Navigation
 
-- **Arrow Keys**: ← (previous) / → (next)
-- **Timeline**: Click any timestamp to jump to that version
-- **Window Click**: Click any non-active window to bring it forward
+- **Arrow Keys**: ↑ (older) / ↓ (newer)
+- **Timeline**: Click any version to jump instantly
+- **Card Click**: Click any card to bring it forward
 - **Escape**: Close the overlay
-- **Restore Button**: Logs the selected version ID to console
+- **View Toggle**: Switch between scope and browser views
 
 ### Accessibility
 
 - Focus trap within overlay
 - Esc key closes overlay
-- Return focus to trigger button on close
+- Return focus to trigger when closed
 - ARIA labels on all interactive elements
 - Restore button disabled during animations
-- Keyboard navigation through timeline
-
-## Styling
-
-Faithful to macOS Time Machine aesthetic:
-
-- **Window chrome**: Gradient gray title bars, realistic shadows
-- **Cosmic background**: Radial gradient from deep space blue to black
-- **Starfield**: 100 randomly positioned stars for depth
-- **Timeline**: Vertical list with tick marks and active indicator
-- **Controls**: macOS-style buttons (Cancel and Restore)
+- Full keyboard navigation support
 
 ## Mock Data
 
-The app demonstrates version history for "CollabSpace", a collaboration platform:
+The app demonstrates version history for **MusicFlow**, a music streaming platform:
 
 - **12 versions** spanning from alpha (v0.5.0) to full release (v2.4.0)
-- **Progressive feature addition** showing realistic product evolution
-- **Version v2.4.0** (newest): 10 features including auth, RBAC, real-time dashboard, chat, video, notifications, analytics, file sharing, API, dark mode
-- **Version v0.5.0** (oldest): Just landing page and basic routing
-- Each version has title, version number, description, and feature list
+- **Progressive feature evolution** showing realistic product growth
+- **Browser state changes** demonstrating UI evolution
+- Each version includes title, description, features, and browser mockup state
 
 ## Testing
 
@@ -170,33 +154,30 @@ Unit tests cover the selection logic:
 
 Run with `npm test` to verify all tests pass.
 
-## Acceptance Criteria
+## Performance Optimizations
 
-- ✅ Full-screen Finder windows with title bars and traffic lights
-- ✅ Vertical tunnel stacking (up + back in 3D space)
-- ✅ Timeline sidebar functional on right side
-- ✅ Only window top edges visible when stacked
-- ✅ Space-themed cosmic background with stars
-- ✅ Smooth 3D navigation with keyboard and mouse
-- ✅ All TypeScript types defined
-- ✅ Unit tests passing
-- ✅ Clean, modular component structure
-
-## Implementation Notes
-
-This is a minimal v0 implementation featuring:
-- Mock data only (no backend)
-- No real version diffing
-- Console.log for restore action
-- Simplified folder grid (no interactive file system)
-
-Perfect for demonstrating the Time Machine UX pattern before integrating with a real version control system.
+- GPU-accelerated transforms with `will-change: transform`
+- Optimized animation springs with Framer Motion
+- `backface-visibility: hidden` for smoother rendering
+- Proper z-index management for stacking
+- Client-side only rendering for random elements (hydration safe)
 
 ## Browser Support
 
-Best experienced in modern browsers with good CSS 3D transform support:
+Best experienced in modern browsers with CSS 3D transform support:
 - Chrome/Edge (recommended)
 - Safari
 - Firefox
 
-The 3D perspective effects may vary slightly across browsers.
+## Future Enhancements
+
+- Real version control integration
+- Diff view between versions
+- Search and filter capabilities
+- Version tagging and annotations
+- Export/restore functionality
+- Multiple document support
+
+## License
+
+MIT
